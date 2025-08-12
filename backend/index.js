@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios"); // Axios instead of fetch
+const axios = require("axios"); 
+require("dotenv").config();
 
 const app = express();
 const port = 3000;
@@ -14,9 +15,8 @@ app.use(cors({
 app.get("/weather", async (req, res) => {
     try {
         const location = req.query.city;
-        const apiKey = '5de12c1c43f0471d992112953252506';
+        const apiKey = process.env.WEATHER_API_KEY;
 
-        // Get both current and forecast data using Axios
         const { data } = await axios.get(
             `http://api.weatherapi.com/v1/forecast.json`,
             {
@@ -34,7 +34,6 @@ app.get("/weather", async (req, res) => {
             return res.status(400).json({ error: data.error.message });
         }
 
-        // Current weather
         const currentWeather = {
             city: data.location.name,
             region: data.location.region,
@@ -43,7 +42,6 @@ app.get("/weather", async (req, res) => {
             icon: data.current.condition.icon
         };
 
-        // Weekly forecast
         const weeklyForecast = data.forecast.forecastday.map(day => ({
             day: new Date(day.date).toLocaleDateString("en-US", { weekday: "short" }),
             temp: day.day.avgtemp_c,
